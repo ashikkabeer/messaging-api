@@ -79,7 +79,7 @@ Messaging Systen built with Golang, PostgreSQL, RabbitMQ
       {  "status": "read"}
    ```
 
-4. `GET /messages?user1=user123&user2=user456&cursor=MjAyNS0wMy0xNlQwNzoxODo1OC43OTkyOVosMTgzYTIxMTUtNGM1Zi00NzFlLTk5MjgtNzViODM4ZGYzYjZi` : Retrieve Chat History After the cursor
+4. `GET /messages?user1=user123&user2=user456&cursor=MjAyNS0wMy0xNlQwNzoxODo1OC43OTkyOVosMTgzYTIxMTUtNGM1Zi00NzFlLTk5MjgtNzViODM4ZGYzYjZi` : Paginated Message History Retrieval
 
    Response 
    ```jsx
