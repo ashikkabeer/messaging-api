@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -39,7 +40,7 @@ func (c *Config) ConnectionString() string {
 var DB *sql.DB
 
 func Connect() error {
-    fmt.Println("Connecting to database...")
+    log.Println("Connecting to database...")
     var err error
     DB, err = sql.Open("postgres", NewConfig().ConnectionString())
     if err != nil {
@@ -65,7 +66,7 @@ func InitializeSchema() error {
         return fmt.Errorf("schema initialization failed: %v", err)
     }
 
-    fmt.Println("Database connected and schema initialized")
+    log.Println("Database connected and schema initialized")
     return nil
 }
 

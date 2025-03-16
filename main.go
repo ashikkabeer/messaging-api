@@ -21,7 +21,6 @@ func main() {
 	messageReceiver, err := receiver.NewReceiver()
 	if err != nil {
 		log.Fatal(err)
-		panic(err)
 	}
 
 	defer messageReceiver.Close()

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -25,6 +25,16 @@ func SendMessage(c *gin.Context) {
         return;
     }
 
+    // validating the users before sending message
+    senderID := req.SenderID
+    receiverID := req.ReceiverID
+    user:= isUsersExist(senderID, receiverID)
+   
+    if !user {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Users not found"})
+        return
+    }
+
     // message is being sent to the Queue
     messageSender, err := sender.NewSender()
     if err!= nil {
@@ -42,7 +52,7 @@ func SendMessage(c *gin.Context) {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send message"})
         return
     }
-    fmt.Println("pushed to queue")
+    log.Println("Message published to RabbitMQ")
 
     c.JSON(http.StatusOK, gin.H{"status": "Success", "message": req})
 }
@@ -60,19 +70,9 @@ func RetrieveHistory(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Missing user1 or user2"})
         return
     }
+    user := isUsersExist(firstUser, secondUser)
 
-    // check if both users exist
-    query := `SELECT COUNT(*) 
-    FROM users 
-    WHERE id IN ($1, $2)`
-    var count int
-    err = db.QueryRow(query, firstUser, secondUser).Scan(&count)
-    fmt.Println(err)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error in checking users"})
-        return
-    }
-    if count != 2 {
+    if !user {
         c.JSON(http.StatusNotFound, gin.H{"error": "Users not found"})
         return
     }
@@ -80,7 +80,7 @@ func RetrieveHistory(c *gin.Context) {
 
     // retrieving latest messages between the two users
     if cursor == "" {
-        query = `SELECT id, senderID, receiverID, content, read, created_at 
+        query := `SELECT id, senderID, receiverID, content, read, created_at 
         FROM messages 
         WHERE (senderID = $1 AND receiverID = $2) 
         OR (senderID = $2 AND receiverID = $1)
@@ -90,7 +90,7 @@ func RetrieveHistory(c *gin.Context) {
     } else {
         // retrieving messages with cursor
         timestamp, _, err = utils.DecodeCursor(cursor)
-        query = `SELECT id, senderID, receiverID, content, read, created_at 
+        query := `SELECT id, senderID, receiverID, content, read, created_at 
         FROM messages 
         WHERE (senderID = $1 AND receiverID = $2) 
         OR (senderID = $2 AND receiverID = $1)
@@ -153,3 +153,14 @@ func MarkAsRead(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"status": "read"})
 }
 
+func isUsersExist(sender string, receiver string) bool {
+    query := `SELECT COUNT(*)
+    FROM users
+    WHERE id IN ($1, $2)`
+    var count int
+    err := db.QueryRow(query, sender, receiver).Scan(&count)
+    if err!= nil {
+        return false
+    }
+    return count == 2
+}
