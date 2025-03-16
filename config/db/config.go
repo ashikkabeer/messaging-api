@@ -81,9 +81,9 @@ func Exec(query string, args ...interface{}) (sql.Result, error) {
     return DB.Exec(query, args...)
 }
 func QueryRow(query string, args ...interface{}) *sql.Row {
-    return DB.QueryRow(query, args...)
+    return DB.QueryRow(query, args...) // returns a single row
 }
 
 func Query(query string, args ...interface{}) (*sql.Rows, error) {
-    return DB.Query(query, args...)
+    return DB.Query(query, args...) // returns multiple rows
 }

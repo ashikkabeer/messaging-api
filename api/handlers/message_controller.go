@@ -4,10 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ashikkabeer/messaging-api/config/db"
 	"github.com/ashikkabeer/messaging-api/models"
+	"github.com/ashikkabeer/messaging-api/utils"
+
 	"github.com/ashikkabeer/messaging-api/queue/sender"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
@@ -17,14 +21,14 @@ func SendMessage(c *gin.Context) {
     
     if err := c.ShouldBindJSON(&req);
     err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Message not available in the request body"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid request payload"})
         return;
     }
 
     // message is being sent to the Queue
     messageSender, err := sender.NewSender()
     if err!= nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error in creating a new sender"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create message sender"})
         return;
     }
     defer messageSender.Close()
@@ -35,7 +39,7 @@ func SendMessage(c *gin.Context) {
         Content: req.Content,
     });
     err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error in sending message"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send message"})
         return
     }
     fmt.Println("pushed to queue")
@@ -53,7 +57,7 @@ func RetrieveHistory(c *gin.Context) {
     var err error
 
     if firstUser == "" || secondUser == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "userId query parameter is required"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Missing user1 or user2"})
         return
     }
 
@@ -63,14 +67,16 @@ func RetrieveHistory(c *gin.Context) {
     WHERE id IN ($1, $2)`
     var count int
     err = db.QueryRow(query, firstUser, secondUser).Scan(&count)
+    fmt.Println(err)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error in checking users"})
         return
     }
     if count != 2 {
-        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        c.JSON(http.StatusNotFound, gin.H{"error": "Users not found"})
         return
     }
+    var timestamp time.Time
 
     // retrieving latest messages between the two users
     if cursor == "" {
@@ -83,6 +89,7 @@ func RetrieveHistory(c *gin.Context) {
         rows, err = db.Query(query, firstUser, secondUser, limit)
     } else {
         // retrieving messages with cursor
+        timestamp, _, err = utils.DecodeCursor(cursor)
         query = `SELECT id, senderID, receiverID, content, read, created_at 
         FROM messages 
         WHERE (senderID = $1 AND receiverID = $2) 
@@ -91,7 +98,7 @@ func RetrieveHistory(c *gin.Context) {
         ORDER BY created_at DESC
         LIMIT $4;
     `
-    rows, err = db.Query(query, firstUser, secondUser, cursor, limit)
+    rows, err = db.Query(query, firstUser, secondUser, timestamp, limit)
     }
 
     if err != nil {
@@ -112,9 +119,10 @@ func RetrieveHistory(c *gin.Context) {
     }
     if len(messages) > 0 {
         lastMessage := messages[len(messages)-1]
+        cursor = utils.EncodeCursor(lastMessage.CreatedAt, lastMessage.ID)
         c.JSON(http.StatusOK, gin.H{
             "messages": messages,
-            "next_cursor": lastMessage.CreatedAt,
+            "next_cursor": cursor,
             "has_more": len(messages) == limit,
         })
     } else {
@@ -144,3 +152,4 @@ func MarkAsRead(c *gin.Context) {
 
     c.JSON(http.StatusOK, gin.H{"status": "read"})
 }
+
