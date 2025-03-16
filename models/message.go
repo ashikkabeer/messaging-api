@@ -11,10 +11,10 @@ type RequestBody struct {
 }
 
 type Message struct {
-    ID         string    `json:"id"`
+    ID         string    `json:"message_id"`
     SenderID   string    `json:"sender_id"`
     ReceiverID string    `json:"receiver_id"`
     Content    string    `json:"content"`
+    CreatedAt  time.Time `json:"timestamp"`
     Read       bool      `json:"read"`
-    CreatedAt  time.Time `json:"created_at"`
 }
