@@ -72,14 +72,7 @@ Messaging Systen built with Golang, PostgreSQL, RabbitMQ
    }
    ```
 
-3.. `PATCH /messages/{message_id}/read`: Mark a message as read
-
-   Response
-   ```jsx
-      {  "status": "read"}
-   ```
-
-4. `GET /messages?user1=user123&user2=user456&cursor=MjAyNS0wMy0xNlQwNzoxODo1OC43OTkyOVosMTgzYTIxMTUtNGM1Zi00NzFlLTk5MjgtNzViODM4ZGYzYjZi` : Paginated Message History Retrieval
+3. `GET /messages?user1=user123&user2=user456&cursor=MjAyNS0wMy0xNlQwNzoxODo1OC43OTkyOVosMTgzYTIxMTUtNGM1Zi00NzFlLTk5MjgtNzViODM4ZGYzYjZi` : Paginated Message History Retrieval
 
    Response 
    ```jsx
@@ -106,3 +99,12 @@ Messaging Systen built with Golang, PostgreSQL, RabbitMQ
       "next_cursor": "MjAyNS0wMy0xNlQwNzoxOToxOS43ODk4NTRaLDUzOTRjY2UxLWM3MWItNDZmMC05NjhjLWJlYThlYjQ3OTVhZQ=="
    }
    ```
+
+
+4. `PATCH /messages/{message_id}/read`: Mark a message as read
+
+   Response
+   ```jsx
+      {  "status": "read"}
+   ```
+
