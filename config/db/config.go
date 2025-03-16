@@ -1,11 +1,12 @@
 package db
 
 import (
-    "fmt"
-    "os"
-    "strconv"
-    "database/sql"
-    _ "github.com/lib/pq"
+	"database/sql"
+	"fmt"
+	"os"
+	"strconv"
+
+	_ "github.com/lib/pq"
 )
 
 type Config struct {

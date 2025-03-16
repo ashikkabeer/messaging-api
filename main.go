@@ -1,10 +1,11 @@
 package main
 
 import (
+	"log"
+
 	"github.com/ashikkabeer/messaging-api/api/routes"
 	"github.com/ashikkabeer/messaging-api/config/db"
 	"github.com/ashikkabeer/messaging-api/queue/receiver"
-	"log"
 	"github.com/ashikkabeer/messaging-api/utils"
 )
 
@@ -27,9 +28,5 @@ func main() {
 	if err := messageReceiver.StartConsuming();err != nil {
         log.Fatalf("Failed to start consuming: %v", err)
     }
-	// if err := messageReceiver.StartConsuming(receiver.ProcessMessage); err != nil {
-    //     log.Fatalf("Failed to start consuming: %v", err)
-    // }
-
 	r.Run()
 }

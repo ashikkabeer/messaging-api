@@ -1,12 +1,13 @@
 package receiver
 
 import (
-	"github.com/rabbitmq/amqp091-go"
+	"encoding/json"
+	"fmt"
+	"log"
+
 	"github.com/ashikkabeer/messaging-api/config/db"
 	"github.com/ashikkabeer/messaging-api/models"
-	"fmt"
-	"encoding/json"
-    "log"
+	"github.com/rabbitmq/amqp091-go"
 )
 
 type Receiver struct {

@@ -1,10 +1,11 @@
 package sender
 
 import (
-	"fmt"
-	"github.com/rabbitmq/amqp091-go"
 	"encoding/json"
+	"fmt"
+
 	"github.com/ashikkabeer/messaging-api/models"
+	"github.com/rabbitmq/amqp091-go"
 )
 
 type Sender struct {

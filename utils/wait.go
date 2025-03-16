@@ -1,9 +1,10 @@
 package utils
 
 import (
-    "fmt"
-    "time"
-    "github.com/rabbitmq/amqp091-go"
+	"fmt"
+	"time"
+
+	"github.com/rabbitmq/amqp091-go"
 )
 
 func WaitForRabbitMQ() {

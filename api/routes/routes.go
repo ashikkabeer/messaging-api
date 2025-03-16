@@ -1,7 +1,8 @@
 package routes
+
 import (
-    "github.com/gin-gonic/gin"
-    "github.com/ashikkabeer/messaging-api/api/handlers"
+	"github.com/ashikkabeer/messaging-api/api/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {

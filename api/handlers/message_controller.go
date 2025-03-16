@@ -1,15 +1,15 @@
 package handlers
 
-
 import (
-    "net/http"
-    "database/sql"
-    "fmt"
-    "github.com/ashikkabeer/messaging-api/config/db"
-    "github.com/ashikkabeer/messaging-api/queue/sender"
-    "github.com/ashikkabeer/messaging-api/models"
-    "github.com/gin-gonic/gin"
-    _ "github.com/lib/pq"
+	"database/sql"
+	"fmt"
+	"net/http"
+
+	"github.com/ashikkabeer/messaging-api/config/db"
+	"github.com/ashikkabeer/messaging-api/models"
+	"github.com/ashikkabeer/messaging-api/queue/sender"
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 )
 
 func SendMessage(c *gin.Context) {
@@ -134,6 +134,7 @@ func RetrieveHistory(c *gin.Context) {
 
 func MarkAsRead(c *gin.Context) {
     messageId := c.Param("message_id");
+    
     query := `UPDATE messages SET read = true WHERE id = $1`
     _, err := db.Exec(query, messageId)
     if err!= nil {
