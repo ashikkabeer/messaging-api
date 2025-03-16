@@ -11,7 +11,7 @@ Messaging Systen built with Golang, PostgreSQL, RabbitMQ
 
 ## Prerequisites
 - Docker and Docker Compose
-- Go 1.16 or higher
+- Go 1.24.1
 - PostgreSQL
 - RabbitMQ
 
@@ -37,4 +37,4 @@ Messaging Systen built with Golang, PostgreSQL, RabbitMQ
 ## Resources Used
 - [https://medium.easyread.co/how-to-do-pagination-in-postgres-with-golang-in-4-common-ways-12365b9fb528](https://medium.easyread.co/how-to-do-pagination-in-postgres-with-golang-in-4-common-ways-12365b9fb528)
 
-- 
+- [https://www.rabbitmq.com/tutorials/tutorial-one-go](https://www.rabbitmq.com/tutorials/tutorial-one-go)
