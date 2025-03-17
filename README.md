@@ -33,7 +33,11 @@ Messaging Systen built with Golang, PostgreSQL, RabbitMQ
    ```bash
    go run main.go
    ```
+
 ### API Endpoints
+
+- [Postman Documentation](https://app.getpostman.com/join-team?invite_code=227bfde2db1c5ae53958d1a5d0f29da6370f13039829852c1ddd0c6b15e23cb7&target_code=9c5570595d4f46a22c63eef8761a37f3)
+
 1. `POST /messages`: Create a new message
 
    Request Body
@@ -44,7 +48,7 @@ Messaging Systen built with Golang, PostgreSQL, RabbitMQ
           "content": "Hello, how are you?"
         }
    ```
-2. `GET /messages?user1=user123&user2=user456` : Retrieve Chat History
+2. `GET /messages?user1=user123&user2=user456` : Retrieve Latest Chat History (Limit: 20 Messages)
 
    Response 
    ```jsx
@@ -72,7 +76,7 @@ Messaging Systen built with Golang, PostgreSQL, RabbitMQ
    }
    ```
 
-3. `GET /messages?user1=user123&user2=user456&cursor=MjAyNS0wMy0xNlQwNzoxODo1OC43OTkyOVosMTgzYTIxMTUtNGM1Zi00NzFlLTk5MjgtNzViODM4ZGYzYjZi` : Paginated Message History Retrieval
+3. `GET /messages?user1=user123&user2=user456&cursor={next_cursor}` : Paginated Message History Retrieval (20 Messages)
 
    Response 
    ```jsx

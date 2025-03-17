@@ -20,6 +20,7 @@ func SendMessage(c *gin.Context) {
     var req models.RequestBody
     
     if err := c.ShouldBindJSON(&req);
+    
     err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
         return;
