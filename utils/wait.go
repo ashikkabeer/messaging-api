@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -17,7 +16,7 @@ func WaitForRabbitMQ() {
             conn.Close() 
             return      
         }
-        fmt.Printf("RabbitMQ not ready yet, waiting... (attempt %d/12)\n", i+1)
+        log.Printf("RabbitMQ not ready yet, waiting... (attempt %d/60)\n", i+1)
         time.Sleep(1 * time.Second)
     }
     log.Println("Warning: Timeout waiting for RabbitMQ")

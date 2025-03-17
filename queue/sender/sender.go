@@ -3,7 +3,8 @@ package sender
 import (
 	"encoding/json"
 	"fmt"
-
+	
+	"github.com/ashikkabeer/messaging-api/config/queue"
 	"github.com/ashikkabeer/messaging-api/models"
 	"github.com/rabbitmq/amqp091-go"
 )
@@ -16,7 +17,14 @@ type Sender struct {
 
 func NewSender() (*Sender, error) {
 	// Connect to RabbitMQ
-	conn, err := amqp091.Dial("amqp://guest:guest@localhost:5672/")
+	config := queue.NewConfig()
+	connStr := fmt.Sprintf("amqp://%s:%s@%s:%d/", 
+        config.User, 
+        config.Password, 
+        config.Host, 
+        config.Port,
+    )
+	conn, err := amqp091.Dial(connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to RabbitMQ: %v", err)
 	}

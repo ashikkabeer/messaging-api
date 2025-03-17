@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS messages (
 
 CREATE INDEX idx_messages_sender_receiver ON messages (senderID, receiverID);
 
-INSERT INTO users (id) VALUES ('user123') ON CONFLICT (id) DO NOTHING;
-INSERT INTO users (id) VALUES ('user456') ON CONFLICT (id) DO NOTHING;
-INSERT INTO users (id) VALUES ('user789') ON CONFLICT (id) DO NOTHING;
-INSERT INTO users (id) VALUES ('user101') ON CONFLICT (id) DO NOTHING;
+INSERT INTO users (id) VALUES ('user123');
+INSERT INTO users (id) VALUES ('user456');
+INSERT INTO users (id) VALUES ('user789');
+INSERT INTO users (id) VALUES ('user101');

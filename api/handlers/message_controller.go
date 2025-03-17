@@ -83,7 +83,7 @@ func RetrieveHistory(c *gin.Context) {
         query := `SELECT id, senderID, receiverID, content, read, created_at 
         FROM messages 
         WHERE (senderID = $1 AND receiverID = $2) 
-        OR (senderID = $2 AND receiverID = $1)
+        OR (senderID = $2 AND receiverID = $1) 
         ORDER BY created_at DESC
         LIMIT $3;`
         rows, err = db.Query(query, firstUser, secondUser, limit)
