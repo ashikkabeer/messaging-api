@@ -77,7 +77,6 @@ func (r *Receiver) StartConsuming() error {
         for msg := range msgs {
 			var message models.RequestBody
 			if err := json.Unmarshal(msg.Body, &message); err != nil {
-				// return err
 				log.Printf("Error processing message: %v\n", "Failed to unmarshal JSON")
 				msg.Nack(false, true)
 				continue
