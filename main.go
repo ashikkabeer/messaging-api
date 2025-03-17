@@ -16,8 +16,8 @@ func main() {
 	// setup router and db
 	r := routes.SetupRouter()
 	err := db.Connect()
-	
-	if err!= nil {
+
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -28,8 +28,8 @@ func main() {
 	}
 
 	defer messageReceiver.Close()
-	if err := messageReceiver.StartConsuming();err != nil {
-        log.Fatalf("Failed to start consuming: %v", err)
-    }
+	if err := messageReceiver.StartConsuming(); err != nil {
+		log.Fatalf("Failed to start consuming: %v", err)
+	}
 	r.Run()
 }

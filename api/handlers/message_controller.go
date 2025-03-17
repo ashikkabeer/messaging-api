@@ -146,7 +146,6 @@ func RetrieveHistory(c *gin.Context) {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
-
 }
 
 func MarkAsRead(c *gin.Context) {
@@ -169,7 +168,7 @@ func isUsersExist(sender string, receiver string) bool {
     WHERE id IN ($1, $2)`
     var count int
     err := db.QueryRow(query, sender, receiver).Scan(&count)
-    
+
     if err!= nil {
         return false
     }
