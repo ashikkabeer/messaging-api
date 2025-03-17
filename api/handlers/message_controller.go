@@ -20,7 +20,7 @@ func SendMessage(c *gin.Context) {
     var req models.RequestBody
     
     if err := c.ShouldBindJSON(&req);
-    
+
     err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
         return;
@@ -64,6 +64,7 @@ func RetrieveHistory(c *gin.Context) {
     secondUser := c.Query("user2")
     cursor := c.Query("cursor")
     limit := 20
+
     var rows *sql.Rows
     var err error
 
@@ -71,12 +72,14 @@ func RetrieveHistory(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Missing user1 or user2"})
         return
     }
+
     user := isUsersExist(firstUser, secondUser)
 
     if !user {
         c.JSON(http.StatusNotFound, gin.H{"error": "Users not found"})
         return
     }
+
     var timestamp time.Time
 
     // retrieving latest messages between the two users
@@ -99,6 +102,7 @@ func RetrieveHistory(c *gin.Context) {
         ORDER BY created_at DESC
         LIMIT $4;
     `
+
     rows, err = db.Query(query, firstUser, secondUser, timestamp, limit)
     }
 
@@ -106,18 +110,22 @@ func RetrieveHistory(c *gin.Context) {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
+
     defer rows.Close()
 
     var messages []models.Message
     for rows.Next() {
         var msg models.Message
         err := rows.Scan(&msg.ID, &msg.SenderID, &msg.ReceiverID, &msg.Content, &msg.Read, &msg.CreatedAt)
+
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
+
         messages = append(messages, msg)
     }
+
     if len(messages) > 0 {
         lastMessage := messages[len(messages)-1]
         cursor = utils.EncodeCursor(lastMessage.CreatedAt, lastMessage.ID)
@@ -146,6 +154,7 @@ func MarkAsRead(c *gin.Context) {
     
     query := `UPDATE messages SET read = true WHERE id = $1`
     _, err := db.Exec(query, messageId)
+
     if err!= nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Error in marking message as read"})
         return
@@ -160,6 +169,7 @@ func isUsersExist(sender string, receiver string) bool {
     WHERE id IN ($1, $2)`
     var count int
     err := db.QueryRow(query, sender, receiver).Scan(&count)
+    
     if err!= nil {
         return false
     }

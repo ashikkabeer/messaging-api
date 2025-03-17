@@ -19,6 +19,8 @@ type Config struct {
     Sslmode string
 }
 
+var DB *sql.DB
+
 func NewConfig() *Config {
     port, _ := strconv.Atoi(getEnvOrDefault("DB_PORT", "5433"))
     return &Config{
@@ -37,7 +39,6 @@ func (c *Config) ConnectionString() string {
         c.Host, c.Port, c.User,c.Password,c.Dbname, c.Sslmode,
     )
 }
-var DB *sql.DB
 
 func Connect() error {
     log.Println("Connecting to database...")
@@ -81,10 +82,13 @@ func getEnvOrDefault(key string, defaultValue string) string {
 func Exec(query string, args ...interface{}) (sql.Result, error) {
     return DB.Exec(query, args...)
 }
+
+// returns a single row
 func QueryRow(query string, args ...interface{}) *sql.Row {
-    return DB.QueryRow(query, args...) // returns a single row
+    return DB.QueryRow(query, args...) 
 }
 
+// returns multiple rows
 func Query(query string, args ...interface{}) (*sql.Rows, error) {
-    return DB.Query(query, args...) // returns multiple rows
+    return DB.Query(query, args...) 
 }
