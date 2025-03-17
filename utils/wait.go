@@ -13,7 +13,7 @@ func WaitForRabbitMQ() {
         conn, err := amqp091.Dial("amqp://guest:guest@localhost:5672/")
         if err == nil {
             log.Println("RabbitMQ is ready!")
-            conn.Close() 
+            conn.Close()
             return      
         }
         log.Printf("RabbitMQ not ready yet, waiting... (attempt %d/60)\n", i+1)

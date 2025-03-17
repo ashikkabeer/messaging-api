@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS messages (
     read BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 -- CREATE INDEX idx_messages_sender ON messages(senderID);
 -- CREATE INDEX idx_messages_receiver ON messages(receiverID);
 

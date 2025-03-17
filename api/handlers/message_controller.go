@@ -8,9 +8,8 @@ import (
 
 	"github.com/ashikkabeer/messaging-api/config/db"
 	"github.com/ashikkabeer/messaging-api/models"
-	"github.com/ashikkabeer/messaging-api/utils"
-
 	"github.com/ashikkabeer/messaging-api/queue/sender"
+	"github.com/ashikkabeer/messaging-api/utils"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
