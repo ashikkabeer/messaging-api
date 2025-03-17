@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	_ "github.com/lib/pq"
 )
@@ -22,7 +23,7 @@ type Config struct {
 var DB *sql.DB
 
 func NewConfig() *Config {
-    port, _ := strconv.Atoi(getEnvOrDefault("DB_PORT", "5433"))
+    port, _ := strconv.Atoi(getEnvOrDefault("DB_PORT", "5432"))
     return &Config{
         Host: getEnvOrDefault("DB_HOST", "localhost"),
         Port: port,
@@ -64,6 +65,10 @@ func InitializeSchema() error {
 
     _, err = DB.Exec(string(initSQL))
     if err != nil {
+        if strings.Contains(err.Error(), "already exists") {
+            log.Printf("already exist, skipping: %v", err)
+            return nil
+        }
         return fmt.Errorf("schema initialization failed: %v", err)
     }
 

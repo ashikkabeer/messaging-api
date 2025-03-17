@@ -15,7 +15,11 @@ func main() {
 
 	// setup router and db
 	r := routes.SetupRouter()
-	db.Connect()
+	err := db.Connect()
+	
+	if err!= nil {
+		log.Fatal(err)
+	}
 
 	// start consuming messages from rabbitmq
 	messageReceiver, err := receiver.NewReceiver()
