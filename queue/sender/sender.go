@@ -28,10 +28,10 @@ func NewSender(conn *amqp091.Connection) (*Sender, error) {
 	// Create a channel
 	var err error
 	once.Do(func() {
-		ch, err := conn.Channel()
-	if err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("failed to open channel: %v", err)
+		ch, chErr := conn.Channel()
+		if chErr != nil {
+			err = fmt.Errorf("failed to open channel: %v", chErr)
+		return
 	}
 
 	// Declare a queue
