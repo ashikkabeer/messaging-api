@@ -5,7 +5,7 @@ import (
 
 	"github.com/ashikkabeer/messaging-api/api/routes"
 	"github.com/ashikkabeer/messaging-api/config/db"
-	"github.com/ashikkabeer/messaging-api/queue/receiver"
+	"github.com/ashikkabeer/messaging-api/config/queue"
 	"github.com/ashikkabeer/messaging-api/utils"
 )
 
@@ -20,16 +20,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// start consuming messages from rabbitmq
-	messageReceiver, err := receiver.NewReceiver()
-	if err != nil {
-		log.Fatal(err)
+	if err:= queue.InitializeQueue(); err != nil {
+		log.Fatalf("failed to initialize queue",err)
 	}
 
-	defer messageReceiver.Close()
-	if err := messageReceiver.StartConsuming(); err != nil {
-		log.Fatalf("Failed to start consuming: %v", err)
-	}
+	defer queue.CloseConnections()
 	r.Run()
 }

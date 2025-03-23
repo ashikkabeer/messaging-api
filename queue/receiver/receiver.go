@@ -6,32 +6,16 @@ import (
 	"log"
 
 	"github.com/ashikkabeer/messaging-api/config/db"
-	"github.com/ashikkabeer/messaging-api/config/queue"
 	"github.com/ashikkabeer/messaging-api/models"
 	"github.com/rabbitmq/amqp091-go"
 )
 
 type Receiver struct {
-	conn    *amqp091.Connection
-	channel *amqp091.Channel
-	queue   amqp091.Queue
+	Channel *amqp091.Channel
+	Queue   amqp091.Queue
 }
 
-func NewReceiver() (*Receiver, error) {
-	// Connect to RabbitMQ
-	config := queue.NewConfig()
-    connStr := fmt.Sprintf("amqp://%s:%s@%s:%d/", 
-        config.User, 
-        config.Password, 
-        config.Host, 
-        config.Port,
-    )
-    
-    conn, err := amqp091.Dial(connStr)
-	if err!= nil {
-		return nil, fmt.Errorf("failed to connect to RabbitMQ: %v", err)
-	}
-
+func NewReceiver(conn *amqp091.Connection) (*Receiver, error) {
 	// Create a channel
 	ch, err := conn.Channel()
 	if err != nil {
@@ -54,13 +38,13 @@ func NewReceiver() (*Receiver, error) {
 	}
 
 	return &Receiver{
-		conn:    conn,
-		channel: ch,
-		queue:   q,
+		// conn:    conn,
+		Channel: ch,
+		Queue:   q,
 	}, nil
 }
 func (r *Receiver) StartConsuming() error {
-    msgs, err := r.channel.Consume(
+    msgs, err := r.Channel.Consume(
         "Messages", 
         "",         
         false,      
@@ -99,10 +83,7 @@ func (r *Receiver) StartConsuming() error {
 }
 
 func (r *Receiver) Close() {
-	if r.channel != nil {
-		r.channel.Close()
-	}
-	if r.conn != nil {
-		r.conn.Close()
+	if r.Channel != nil {
+		r.Channel.Close()
 	}
 }

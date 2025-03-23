@@ -3,32 +3,24 @@ package sender
 import (
 	"encoding/json"
 	"fmt"
-	
-	"github.com/ashikkabeer/messaging-api/config/queue"
+
 	"github.com/ashikkabeer/messaging-api/models"
 	"github.com/rabbitmq/amqp091-go"
 )
 
+// golbal variable to hold the single sender instance
+var senderInstance *Sender
+
+func SetSenderInstance(s *Sender) {
+    senderInstance = s
+}
 type Sender struct {
-	conn    *amqp091.Connection
-	channel *amqp091.Channel
-	queue   amqp091.Queue
+	// Conn    *amqp091.Connection
+	Channel *amqp091.Channel
+	Queue   amqp091.Queue
 }
 
-func NewSender() (*Sender, error) {
-	// Connect to RabbitMQ
-	config := queue.NewConfig()
-	connStr := fmt.Sprintf("amqp://%s:%s@%s:%d/", 
-        config.User, 
-        config.Password, 
-        config.Host, 
-        config.Port,
-    )
-	conn, err := amqp091.Dial(connStr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to RabbitMQ: %v", err)
-	}
-
+func NewSender(conn *amqp091.Connection) (*Sender, error) {
 	// Create a channel
 	ch, err := conn.Channel()
 	if err != nil {
@@ -52,19 +44,26 @@ func NewSender() (*Sender, error) {
 	}
 
 	return &Sender{
-		conn:    conn,
-		channel: ch,
-		queue:   q,
+		Channel: ch,
+		Queue:   q,
 	}, nil
 }
+func SendMessageToQueue(message models.RequestBody) error {
+    // Check if sender is initialized
+    if senderInstance == nil {
+        return fmt.Errorf("default sender not initialized")
+    }
+    // Use the singleton instance to send message
+    return senderInstance.SendMessage(message)
+}
+
 
 func (s *Sender) SendMessage(message models.RequestBody) error {
-
 	jsonData, err := json.Marshal(message)
 	if err!= nil {
 		return fmt.Errorf("failed to marshal message: %v", err)
 	}
-	err = s.channel.Publish(
+	err = s.Channel.Publish(
 		"",          
 		"Messages", 
 		false,        
@@ -82,11 +81,8 @@ func (s *Sender) SendMessage(message models.RequestBody) error {
 }
 
 func (s *Sender) Close() {
-	if s.channel != nil {
-		s.channel.Close()
-	}
-	if s.conn != nil {
-		s.conn.Close()
+	if s.Channel != nil {
+		s.Channel.Close()
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/ashikkabeer/messaging-api/config/db"
@@ -28,22 +29,21 @@ func SendMessage(c *gin.Context) {
     // validating the users before sending message
     senderID := req.SenderID
     receiverID := req.ReceiverID
+
+    if senderID == "" || receiverID == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Missing senderID or receiverID"})
+        return
+    }
+
     user:= isUsersExist(senderID, receiverID)
+
    
     if !user {
         c.JSON(http.StatusNotFound, gin.H{"error": "Users not found"})
         return
     }
 
-    // message is being sent to the Queue
-    messageSender, err := sender.NewSender()
-    if err!= nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create message sender"})
-        return;
-    }
-    defer messageSender.Close()
-
-    if err := messageSender.SendMessage(models.RequestBody{
+    if err := sender.SendMessageToQueue(models.RequestBody{
         SenderID: req.SenderID,
         ReceiverID: req.ReceiverID,
         Content: req.Content,
@@ -62,7 +62,12 @@ func RetrieveHistory(c *gin.Context) {
     firstUser := c.Query("user1")
     secondUser := c.Query("user2")
     cursor := c.Query("cursor")
-    limit := 20
+
+    s := c.Query("limit")
+    limit, errs := strconv.Atoi(s)
+    if errs != nil {
+        return
+    }
 
     var rows *sql.Rows
     var err error
@@ -93,6 +98,10 @@ func RetrieveHistory(c *gin.Context) {
     } else {
         // retrieving messages with cursor
         timestamp, _, err = utils.DecodeCursor(cursor)
+        if err!= nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid cursor"})
+            return 
+        }
         query := `SELECT id, senderID, receiverID, content, read, created_at 
         FROM messages 
         WHERE (senderID = $1 AND receiverID = $2) 
@@ -101,6 +110,7 @@ func RetrieveHistory(c *gin.Context) {
         ORDER BY created_at DESC
         LIMIT $4;
     `
+
 
     rows, err = db.Query(query, firstUser, secondUser, timestamp, limit)
     }
@@ -131,7 +141,7 @@ func RetrieveHistory(c *gin.Context) {
         c.JSON(http.StatusOK, gin.H{
             "messages": messages,
             "next_cursor": cursor,
-            "has_more": len(messages) == limit,
+            "has_more": len(messages) == int(limit),
         })
     } else {
         c.JSON(http.StatusOK, gin.H{
@@ -149,16 +159,17 @@ func RetrieveHistory(c *gin.Context) {
 
 func MarkAsRead(c *gin.Context) {
     messageId := c.Param("message_id");
-    
-    query := `UPDATE messages SET read = true WHERE id = $1`
-    _, err := db.Exec(query, messageId)
-
-    if err!= nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error in marking message as read"})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"status": "read"})
+    MarkAsReadAsync(messageId)
+    c.JSON(http.StatusOK, gin.H{"status":"read"})
+}
+func MarkAsReadAsync(messageId string) {
+    go func() {
+        query := `UPDATE messages SET read = true WHERE id = $1`
+        _,err := db.Exec(query, messageId)
+        if err != nil {
+            log.Printf("update failed")
+        }
+    }()
 }
 
 func isUsersExist(sender string, receiver string) bool {
