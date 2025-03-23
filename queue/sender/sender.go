@@ -3,13 +3,17 @@ package sender
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/ashikkabeer/messaging-api/models"
 	"github.com/rabbitmq/amqp091-go"
 )
 
 // golbal variable to hold the single sender instance
-var senderInstance *Sender
+var (
+	senderInstance *Sender
+	once sync.Once
+)
 
 func SetSenderInstance(s *Sender) {
     senderInstance = s
@@ -22,14 +26,16 @@ type Sender struct {
 
 func NewSender(conn *amqp091.Connection) (*Sender, error) {
 	// Create a channel
-	ch, err := conn.Channel()
+	var err error
+	once.Do(func() {
+		ch, err := conn.Channel()
 	if err != nil {
 		conn.Close()
 		return nil, fmt.Errorf("failed to open channel: %v", err)
 	}
 
 	// Declare a queue
-	q, err := ch.QueueDeclare(
+	q, qerr := ch.QueueDeclare(
 		"Messages",  
 		false,       
 		false,       
@@ -37,16 +43,22 @@ func NewSender(conn *amqp091.Connection) (*Sender, error) {
 		false,       
 		nil,         
 	)
-	if err != nil {
+	if qerr != nil {
 		ch.Close()
 		conn.Close()
-		return nil, fmt.Errorf("failed to declare queue: %v", err)
+		err = fmt.Errorf("failed to declare queue: %v", qerr)
+			return
+
 	}
 
-	return &Sender{
+	senderInstance = &Sender{
 		Channel: ch,
 		Queue:   q,
-	}, nil
+	}
+	})
+	return senderInstance, err
+
+	
 }
 func SendMessageToQueue(message models.RequestBody) error {
     // Check if sender is initialized
