@@ -36,7 +36,6 @@ func SendMessage(c *gin.Context) {
     }
 
     user:= isUsersExist(senderID, receiverID)
-
    
     if !user {
         c.JSON(http.StatusNotFound, gin.H{"error": "Users not found"})
@@ -63,8 +62,7 @@ func RetrieveHistory(c *gin.Context) {
     secondUser := c.Query("user2")
     cursor := c.Query("cursor")
 
-    s := c.Query("limit")
-    limit, errs := strconv.Atoi(s)
+    limit, errs := strconv.Atoi(c.Query("limit"))
     if errs != nil {
         return
     }
